@@ -17,8 +17,7 @@ type CoordinatesOfPoints struct {
 
 type Point struct {
 	gorm.Model
-	CreatedAt  string
-	UpdatadeAt string
+	Description string
 }
 
 func main() {
@@ -26,13 +25,17 @@ func main() {
 
 	db, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
 
+	// RUN MIGRATIONS
 	db.AutoMigrate(&Point{})
+	db.AutoMigrate(&CoordinatesOfPoints{})
 
 	if err != nil {
 		panic("Can't connect to database.")
 	}
-	var result int
-	db.Raw("SELECT 1+7 AS result;").Scan(&result)
 
-	fmt.Println(result)
+	db.Create(&Point{Description: "Lolzinho"})
+
+	result := db.Take(&Point{})
+
+	fmt.Println(result.Rows())
 }
