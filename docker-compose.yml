@@ -1,0 +1,49 @@
+version: '3.1'
+
+services:
+  database:
+    container_name: db_container
+    image: postgres:alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    depends_on:
+      - database
+    networks:
+      - backend
+    ports:
+      - "8080:80"
+
+  redis:
+    container_name: redis_container
+    image: redis:alpine
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+    networks:
+      - backend
+    ports:
+      - "6379:6379"
+    volumes:
+      - cache:/data
+
+volumes:
+  cache:
+    driver: local
+
+networks:
+  backend:
+    driver: 'bridge'
